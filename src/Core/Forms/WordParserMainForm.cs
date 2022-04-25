@@ -8,14 +8,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WordParser.Core.Models;
 using WordParser.Core.Forms;
-using WordParser.Core.Enums;
 using System.IO;
-using Newtonsoft.Json;
-using WordParser.Core.Enums.Logger;
 using WordParser.Core.Toolkit;
-using WordParser.Core.Services;
 using System.Diagnostics;
-using WordParser.Core.Enums.Services;
+using WordParser.Core.Parser;
 
 namespace WordParser
 {
@@ -158,13 +154,13 @@ namespace WordParser
             this.saveResultToTxtButton.Click += async (s, e) =>
             {
                 var file = GetNameResult(ResultFileTypeEnum.Txt);
-                await File.WriteAllLinesAsync(file.FullName, _resultWordList.Select(x => $"{x.Word} - {x.WordUniqueness}"), Encoding.UTF8);
+                await File.WriteAllLinesAsync(file.FullName, _resultWordList.Select(x => $"{x.Word} - {x.Quantity}"), Encoding.UTF8);
                 OpenFileInExplorer(file);
             };
             this.saveResultToCsvButton.Click += async (s, e) =>
             {
                 var file = GetNameResult(ResultFileTypeEnum.Csv);
-                await File.WriteAllLinesAsync(file.FullName, _resultWordList.Select(x => $"{x.Word},{x.WordUniqueness}"), Encoding.UTF8);
+                await File.WriteAllLinesAsync(file.FullName, _resultWordList.Select(x => $"{x.Word},{x.Quantity}"), Encoding.UTF8);
                 OpenFileInExplorer(file);
             };
             #endregion
@@ -193,7 +189,7 @@ namespace WordParser
                 {
                     case ParsingTypeEnum.StartParsing:
                         var url = this.inputParsingUrlTextBox.Text != _inputParsingUrlTextBoxDefText ? this.inputParsingUrlTextBox.Text : string.Empty;
-                        _resultWordList = _wordParser.StartParsing(url, SettingsProcessingWords);
+                        _resultWordList = _wordParser.Parse(url, SettingsProcessingWords);
                         break;
                     case ParsingTypeEnum.ReParsing:
                         _resultWordList = _wordParser.ReParsing(SettingsProcessingWords);
@@ -203,7 +199,7 @@ namespace WordParser
 
                 if (_resultWordList.Count != 0)
                 {
-                    this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = string.Join(Environment.NewLine, _resultWordList.Select(x => $"{x.Word} - {x.WordUniqueness}")); });
+                    this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = string.Join(Environment.NewLine, _resultWordList.Select(x => $"{x.Word} - {x.Quantity}")); });
                     this.saveBox.Invoke((MethodInvoker)delegate { saveBox.Enabled = true; });
                 }
                 else if (!string.IsNullOrWhiteSpace(_wordParser.DetectorMessageError))

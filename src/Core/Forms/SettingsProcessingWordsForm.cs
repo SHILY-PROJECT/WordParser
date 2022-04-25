@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using WordParser.Core.Enums.Services;
 using WordParser.Core.Models;
 
 namespace WordParser.Core.Forms
@@ -23,12 +22,12 @@ namespace WordParser.Core.Forms
         /// <summary>
         /// Настройки регистра результата.
         /// </summary>
-        private static readonly Dictionary<RegisterWordsSettingsEnum, string> _registerSettingsMap = new()
+        private static readonly Dictionary<LetterСaseEnum, string> _registerSettingsMap = new()
         {
-            [RegisterWordsSettingsEnum.OriginalView] = "иСхоДный виД",
-            [RegisterWordsSettingsEnum.FirstSymbolInUpperRegister] = "Первая буква в верхнем регистре",
-            [RegisterWordsSettingsEnum.AllSymbolInUpperRegister] = "ВСЕ БУКВЫ В ВЕРХНЕМ РЕГИСТРЕ",
-            [RegisterWordsSettingsEnum.AllSymbolInLowerRegister] = "все буквы в нижнем регистре"
+            [LetterСaseEnum.Default] = "иСхоДный виД",
+            [LetterСaseEnum.FirstLetterInUpper] = "Первая буква в верхнем регистре",
+            [LetterСaseEnum.AllLetterInUpper] = "ВСЕ БУКВЫ В ВЕРХНЕМ РЕГИСТРЕ",
+            [LetterСaseEnum.AllLetterInLower] = "все буквы в нижнем регистре"
         };
 
         /// <summary>
