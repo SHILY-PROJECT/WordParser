@@ -1,6 +1,6 @@
 ﻿namespace WordParser.Core.Enums;
 
-internal enum SortingWordsSettingsEnum
+internal enum WordSortType
 {
     NoSorting,
     SortByUniquenessFromMin,

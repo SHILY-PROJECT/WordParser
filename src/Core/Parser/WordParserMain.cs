@@ -51,7 +51,7 @@ internal class WordParserMain
         catch (Exception ex)
         {
             DetectorMessageError = $"MESSAGE ERROR: {ex.Message}";
-            Logger.Write(DetectorMessageError, LogTypeEnum.Error);
+            Logger.Write(DetectorMessageError, LogTypeEnum.Error).GetAwaiter().GetResult();
         }
 
         return resultWords;
@@ -75,19 +75,11 @@ internal class WordParserMain
                 resultWords.Add(new WordItemModel(word, words.Count(x => string.Equals(x, word, StringComparison.CurrentCultureIgnoreCase))));
         });
 
-        resultWords = this.ProcessSortingWords(resultWords, settingsProcessingWords.SortingMode) as List<WordItemModel>;
+        resultWords = resultWords.Sort(settingsProcessingWords.SortMode) as List<WordItemModel>;
         resultWords = this.ProcessRegisterWords(resultWords, settingsProcessingWords.RegisterSettings) as List<WordItemModel>;
 
         return resultWords;
     }
-
-    private IEnumerable<WordItemModel> ProcessSortingWords(IEnumerable<WordItemModel> words, SortingWordsSettingsEnum sortingWords) => sortingWords switch
-    {
-        SortingWordsSettingsEnum.SortByAlphabet => words.OrderBy(x => x.Word),
-        SortingWordsSettingsEnum.SortByUniquenessFromMin => words.OrderBy(x => x.Quantity),
-        SortingWordsSettingsEnum.SortByUniquenessFromMax => words.OrderByDescending(x => x.Quantity),
-        _ or SortingWordsSettingsEnum.NoSorting => words,
-    };
 
     private IEnumerable<WordItemModel> ProcessRegisterWords(IEnumerable<WordItemModel> words, LetterСaseEnum letterСase) => letterСase switch
     {

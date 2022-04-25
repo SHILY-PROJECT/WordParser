@@ -16,3 +16,4 @@ global using WordParser.Core.Forms;
 global using WordParser.Core.Enums;
 global using WordParser.Core.Toolkit;
 global using WordParser.Core.Parser;
+global using WordParser.Core.Parser.Extensions;
