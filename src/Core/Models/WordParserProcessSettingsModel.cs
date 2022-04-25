@@ -1,9 +1,9 @@
 ﻿namespace WordParser.Core.Models;
 
-internal class SettingsProcessingWordsModel
+internal class WordParserProcessSettingsModel
 {
     public WordSortType SortMode { get; set; }
-    public LetterСaseEnum RegisterSettings {  get; set; }
+    public LetterСase RegisterSettings {  get; set; }
     public bool CheckIsLetter { get; set; }
 
     [JsonIgnore]
@@ -12,9 +12,9 @@ internal class SettingsProcessingWordsModel
     [JsonIgnore]
     public bool SettingsIsUpdated { get; set; } = default;
 
-    public SettingsProcessingWordsModel() { }
+    public WordParserProcessSettingsModel() { }
 
-    public SettingsProcessingWordsModel(SettingsProcessingWordsModel settingsProcessingWords, bool settingsIsUpdated = false)
+    public WordParserProcessSettingsModel(WordParserProcessSettingsModel settingsProcessingWords, bool settingsIsUpdated = false)
     {
         SortMode = settingsProcessingWords.SortMode;
         RegisterSettings = settingsProcessingWords.RegisterSettings;

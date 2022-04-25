@@ -1,6 +1,6 @@
 ﻿namespace WordParser.Core.Forms;
 
-internal partial class SettingsProcessingWordsForm
+internal partial class WordParserProcessSettingsForm
 {
     private System.ComponentModel.IContainer components = null;
 
