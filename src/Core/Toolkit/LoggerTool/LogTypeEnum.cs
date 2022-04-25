@@ -1,4 +1,4 @@
-﻿namespace WordParser.Core.Enums;
+﻿namespace WordParser.Core.Toolkit.LoggerTool;
 
 internal enum LogTypeEnum
 {
