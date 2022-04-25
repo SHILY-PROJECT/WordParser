@@ -9,9 +9,9 @@ using System.Windows.Forms;
 using WordParser.Core.Models;
 using WordParser.Core.Forms;
 using System.IO;
-using WordParser.Core.Toolkit;
 using System.Diagnostics;
 using WordParser.Core.Parser;
+using WordParser.Core.Toolkit.LoggerTool;
 
 namespace WordParser
 {
@@ -20,7 +20,7 @@ namespace WordParser
         private static readonly FileInfo _settingsProcessingWordsFile = new("settings_processing_words.ini");
         private readonly WordParserMain _wordParser;
         private readonly string _inputParsingUrlTextBoxDefText;
-        private List<WordItemModel> _resultWordList;
+        private List<WordModel> _resultWordList;
 
         /// <summary>
         /// Настройки обработки слов.
@@ -77,7 +77,7 @@ namespace WordParser
             }
             catch (Exception ex)
             {
-                Logger.Write($"Не удалось загрузить настройки парсера  |  MESSAGE ERROR: {ex.Message}", LogTypeEnum.Error);
+                Logger.WriteAsync($"Не удалось загрузить настройки парсера  |  MESSAGE ERROR: {ex.Message}", LogTypeEnum.Error);
             }
         }
 

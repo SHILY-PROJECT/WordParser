@@ -6,9 +6,9 @@ internal class Logger
 
     private static string CurrentDate { get => $"{DateTime.Now:yyyy-MM-dd   HH-mm-ss}"; }
 
-    public static async Task Write(string message, LogTypeEnum typeLog)
+    public static async Task WriteAsync(string message, LogTypeEnum typeLog)
     {
-        if (_log == null || _log.Directory == null) return;
+        if (_log is null || _log.Directory is null) return;
         else if (!_log.Directory.Exists) _log.Directory.Create();
 
         await File.AppendAllLinesAsync(_log.FullName, new[] { FormatMessage(typeLog, message) }, Encoding.UTF8);

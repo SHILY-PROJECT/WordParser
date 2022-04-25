@@ -1,11 +1,11 @@
 ﻿namespace WordParser.Core.Models;
 
-internal class WordItemModel
+internal class WordModel
 {
     public string? Word { get; set; }
     public int Quantity { get; set; }
 
-    internal WordItemModel(string word, int quantity)
+    internal WordModel(string word, int quantity)
     {
         Word = word;
         Quantity = quantity;

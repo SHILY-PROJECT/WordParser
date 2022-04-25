@@ -2,7 +2,7 @@
 
 internal class SettingsProcessingWordsModel
 {
-    public SortingWordsSettingsEnum SortingMode { get; set; }
+    public WordSortType SortMode { get; set; }
     public LetterСaseEnum RegisterSettings {  get; set; }
     public bool CheckIsLetter { get; set; }
 
@@ -16,7 +16,7 @@ internal class SettingsProcessingWordsModel
 
     public SettingsProcessingWordsModel(SettingsProcessingWordsModel settingsProcessingWords, bool settingsIsUpdated = false)
     {
-        SortingMode = settingsProcessingWords.SortingMode;
+        SortMode = settingsProcessingWords.SortMode;
         RegisterSettings = settingsProcessingWords.RegisterSettings;
         CheckIsLetter = settingsProcessingWords.CheckIsLetter;
         Separators = settingsProcessingWords.Separators;

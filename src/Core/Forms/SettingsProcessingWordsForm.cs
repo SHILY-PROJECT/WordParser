@@ -11,12 +11,12 @@ namespace WordParser.Core.Forms
         /// <summary>
         /// Настройки сортировки.
         /// </summary>
-        private static readonly Dictionary<SortingWordsSettingsEnum, string> _sortingSettingsMap = new()
+        private static readonly Dictionary<WordSortType, string> _sortingSettingsMap = new()
         {
-            [SortingWordsSettingsEnum.NoSorting] = "Без сортировки",
-            [SortingWordsSettingsEnum.SortByAlphabet] = "Сортировать по алфавиту",
-            [SortingWordsSettingsEnum.SortByUniquenessFromMin] = "Сортировать от более уникальных",
-            [SortingWordsSettingsEnum.SortByUniquenessFromMax] = "Сортировать от менее уникальных"
+            [WordSortType.NoSorting] = "Без сортировки",
+            [WordSortType.SortByAlphabet] = "Сортировать по алфавиту",
+            [WordSortType.SortByUniquenessFromMin] = "Сортировать от более уникальных",
+            [WordSortType.SortByUniquenessFromMax] = "Сортировать от менее уникальных"
         };
 
         /// <summary>
@@ -63,12 +63,12 @@ namespace WordParser.Core.Forms
             {
                 var newSettings = new SettingsProcessingWordsModel
                 {
-                    SortingMode = _sortingSettingsMap.FirstOrDefault(x => x.Value == sortingBox.Text).Key,
+                    SortMode = _sortingSettingsMap.FirstOrDefault(x => x.Value == sortingBox.Text).Key,
                     RegisterSettings = _registerSettingsMap.FirstOrDefault(x => x.Value == registerBox.Text).Key,
                     CheckIsLetter = isLetterCheckBox.Checked
                 };
 
-                if (newSettings.SortingMode != mainSettings.SortingMode ||
+                if (newSettings.SortMode != mainSettings.SortMode ||
                     newSettings.RegisterSettings != mainSettings.RegisterSettings ||
                     newSettings.CheckIsLetter != mainSettings.CheckIsLetter)
                     ((WordParserMainForm)Owner).SettingsProcessingWords = new SettingsProcessingWordsModel(newSettings, true);
@@ -83,7 +83,7 @@ namespace WordParser.Core.Forms
         /// </summary>
         private void SetSettingsToForm(SettingsProcessingWordsModel mainSettings)
         {
-            sortingBox.Text = _sortingSettingsMap[mainSettings.SortingMode];
+            sortingBox.Text = _sortingSettingsMap[mainSettings.SortMode];
             registerBox.Text = _registerSettingsMap[mainSettings.RegisterSettings];
             isLetterCheckBox.Checked = mainSettings.CheckIsLetter;
         }

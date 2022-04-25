@@ -6,9 +6,9 @@ internal class WordParserMain
 
     internal string? DetectorMessageError { get; private set; }
 
-    internal List<WordItemModel> Parse(string url, SettingsProcessingWordsModel settingsProcessingWords)
+    internal List<WordModel> Parse(string url, SettingsProcessingWordsModel settingsProcessingWords)
     {
-        var resultWords = new List<WordItemModel>();
+        var resultWords = new List<WordModel>();
 
         try
         {
@@ -20,7 +20,7 @@ internal class WordParserMain
 
             var htmlPage = new HtmlWeb().Load(url);
 
-            if (htmlPage == null || string.IsNullOrWhiteSpace(htmlPage.Text))
+            if (htmlPage is null || string.IsNullOrWhiteSpace(htmlPage.Text))
                 throw new Exception("Не удалось спарсить сайт");
 
             _pageInnerText = htmlPage.DocumentNode.InnerText;
@@ -32,15 +32,15 @@ internal class WordParserMain
         catch (Exception ex)
         {
             DetectorMessageError = $"MESSAGE ERROR: {ex.Message}  |  URL: {url}";
-            Logger.Write(DetectorMessageError, LogTypeEnum.Error);
+            Logger.WriteAsync(DetectorMessageError, LogTypeEnum.Error).GetAwaiter().GetResult();
         }
 
         return resultWords;
     }
 
-    internal List<WordItemModel> ReParsing(SettingsProcessingWordsModel settingsProcessingWords)
+    internal List<WordModel> ReParsing(SettingsProcessingWordsModel settingsProcessingWords)
     {
-        var resultWords = new List<WordItemModel>();
+        var resultWords = new List<WordModel>();
 
         if (string.IsNullOrWhiteSpace(_pageInnerText)) return resultWords;
 
@@ -51,15 +51,15 @@ internal class WordParserMain
         catch (Exception ex)
         {
             DetectorMessageError = $"MESSAGE ERROR: {ex.Message}";
-            Logger.Write(DetectorMessageError, LogTypeEnum.Error).GetAwaiter().GetResult();
+            Logger.WriteAsync(DetectorMessageError, LogTypeEnum.Error).GetAwaiter().GetResult();
         }
 
         return resultWords;
     }
 
-    private List<WordItemModel> Parse(SettingsProcessingWordsModel settingsProcessingWords)
+    private List<WordModel> Parse(SettingsProcessingWordsModel settingsProcessingWords)
     {
-        var resultWords = new List<WordItemModel>();
+        var resultWords = new List<WordModel>();
 
         var words = _pageInnerText
             .Split(settingsProcessingWords.Separators, StringSplitOptions.None)
@@ -72,20 +72,13 @@ internal class WordParserMain
         words.ForEach(word =>
         {
             if (!resultWords.Any(uWord => string.Equals(uWord.Word, word, StringComparison.CurrentCultureIgnoreCase)))
-                resultWords.Add(new WordItemModel(word, words.Count(x => string.Equals(x, word, StringComparison.CurrentCultureIgnoreCase))));
+                resultWords.Add(new WordModel(word, words.Count(x => string.Equals(x, word, StringComparison.CurrentCultureIgnoreCase))));
         });
 
-        resultWords = resultWords.Sort(settingsProcessingWords.SortMode) as List<WordItemModel>;
-        resultWords = this.ProcessRegisterWords(resultWords, settingsProcessingWords.RegisterSettings) as List<WordItemModel>;
+        resultWords = resultWords?.Sort(settingsProcessingWords.SortMode) as List<WordModel>;
+        resultWords = resultWords?.ChangeCase(settingsProcessingWords.RegisterSettings) as List<WordModel>;
 
-        return resultWords;
+        return resultWords ?? new List<WordModel>();
     }
 
-    private IEnumerable<WordItemModel> ProcessRegisterWords(IEnumerable<WordItemModel> words, LetterСaseEnum letterСase) => letterСase switch
-    {
-        LetterСaseEnum.FirstLetterInUpper => words.Select(x => new WordItemModel(x.Word != null ? new string(x.Word.Select((c, index) => index == 0 ? char.ToUpper(c) : char.ToLower(c)).ToArray()) : string.Empty, x.Quantity)),
-        LetterСaseEnum.AllLetterInUpper => words.Select(x => new WordItemModel(x.Word != null ? x.Word.ToUpper() : string.Empty, x.Quantity)),
-        LetterСaseEnum.AllLetterInLower => words.Select(x => new WordItemModel(x.Word != null ? x.Word.ToLower() : string.Empty, x.Quantity)),
-        _ or LetterСaseEnum.Default => words
-    };
 }
