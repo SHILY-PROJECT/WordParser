@@ -131,7 +131,7 @@ internal partial class WordParserMainForm : Form
         _resultWordList = parsingType switch
         {
             ParsingType.StartParsing => await _parser.Parse(this.inputParsingUrlTextBox.Text != _inputParsingUrlTextBoxDefText ? this.inputParsingUrlTextBox.Text : string.Empty),
-            ParsingType.ReParsing => await _parser.ReParse(),
+            ParsingType.ReParsing => await _parser.ReApplyFilterAsync(),
             _ => _resultWordList
         };
 

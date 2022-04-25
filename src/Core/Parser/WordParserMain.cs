@@ -32,7 +32,7 @@ internal class WordParserMain : IWordParser
                 throw new InvalidOperationException("Не удалось спарсить сайт");
 
             InnerPageText = html.DocumentNode.InnerText;
-            words = (await FilterAsync()).ToList();
+            words = (await ApplyFilterAsync()).ToList();
 
             if (!words.Any())
                 throw new Exception($"Результат парсинга пуст...");
@@ -46,7 +46,7 @@ internal class WordParserMain : IWordParser
         return words;
     }
 
-    public async Task<IList<WordModel>> ReParse()
+    public async Task<IList<WordModel>> ReApplyFilterAsync()
     {
         var words = new List<WordModel>();
 
@@ -54,7 +54,7 @@ internal class WordParserMain : IWordParser
 
         try
         {
-            words = (await FilterAsync()).ToList();
+            words = (await ApplyFilterAsync()).ToList();
         }
         catch (Exception ex)
         {
@@ -66,10 +66,10 @@ internal class WordParserMain : IWordParser
         return words;
     }
 
-    private async Task<IEnumerable<WordModel>> FilterAsync()
-        => await Task.Run(() => Filter());
+    private async Task<IEnumerable<WordModel>> ApplyFilterAsync()
+        => await Task.Run(() => ApplyFilter());
 
-    private IEnumerable<WordModel> Filter()
+    private IEnumerable<WordModel> ApplyFilter()
     {
         var words = InnerPageText
             .Split(_wordParserProcessSettings.Separators, StringSplitOptions.None)
