@@ -3,7 +3,7 @@
 internal partial class WordParserMainForm : Form
 {
     private readonly IWordParser _parser;
-    private IList<WordModel> _resultWordList;
+    private IList<WordModel> _words;
     private readonly string _inputParsingUrlTextBoxDefText;
 
     public WordParserProcessSettingsModel _wordParserProcessSettings;
@@ -13,29 +13,14 @@ internal partial class WordParserMainForm : Form
         _parser = parser;
         _wordParserProcessSettings = settingsProcessingWords;
 
-        _resultWordList = new List<WordModel>();
+        _words = new List<WordModel>();
         _inputParsingUrlTextBoxDefText = "Введите URL для парсинга...";
 
         InitializeComponent();
-        HandleEventsForm();
+        ProcessFormEvents();
     }
 
-    private static FileInfo GetFileNameToSaveResult(ResultFileTypeEnum rsultFileType)
-    {
-        var extension = rsultFileType switch
-        {
-            ResultFileTypeEnum.Csv      => ".csv",
-            ResultFileTypeEnum.Txt or _ => ".txt",
-        };
-
-        var file = new FileInfo(Path.Combine("result", $"result   {DateTime.Now:yyyy-MM-dd   HH-mm-ss---fffffff}{extension}"));
-
-        if (file.Directory != null && !file.Directory.Exists) file.Directory.Create();
-
-        return file;
-    }
-
-    private void HandleEventsForm()
+    private void ProcessFormEvents()
     {
         var appExitButtonDefColor = this.appExitButton.ForeColor;
         var startParsingButtonDefColor = this.startParsingButton.ForeColor;
@@ -93,25 +78,15 @@ internal partial class WordParserMainForm : Form
         this.startParsingButton.Click += (s, e) => RunParsing(ParsingType.StartParsing);
         this.settingsParsingButton.Click += (s, e) =>
         {
-            using var settingsResultForm = new WordParserProcessSettingsForm { Owner = this };
-            settingsResultForm.ShowDialog();
+            using var wordParserProcessSettingsForm = new WordParserProcessSettingsForm { Owner = this };
+            wordParserProcessSettingsForm.ShowDialog();
             if (_wordParserProcessSettings.SettingsIsUpdated) RunParsing(ParsingType.ReParsing);
         };
         #endregion ================================================================================
 
         #region [SAVE RESULT]======================================================================
-        this.saveResultToTxtButton.Click += async (s, e) =>
-        {
-            var file = GetFileNameToSaveResult(ResultFileTypeEnum.Txt);
-            await File.WriteAllLinesAsync(file.FullName, _resultWordList.Select(x => $"{x.Word} - {x.Quantity}"), Encoding.UTF8);
-            OpenFileInExplorer(file);
-        };
-        this.saveResultToCsvButton.Click += async (s, e) =>
-        {
-            var file = GetFileNameToSaveResult(ResultFileTypeEnum.Csv);
-            await File.WriteAllLinesAsync(file.FullName, _resultWordList.Select(x => $"{x.Word},{x.Quantity}"), Encoding.UTF8);
-            OpenFileInExplorer(file);
-        };
+        this.saveResultToTxtButton.Click += async (s, e) => await KeeperOfResult.SaveToFileAsync(_words, ResultFileType.Txt);
+        this.saveResultToCsvButton.Click += async (s, e) => await KeeperOfResult.SaveToFileAsync(_words, ResultFileType.Csv);
         #endregion ================================================================================
     }
 
@@ -122,22 +97,22 @@ internal partial class WordParserMainForm : Form
         this.Enabled = false;
         this.saveBox.Enabled = false;
 
-        if (this.resultRichText.Text.Any() || _resultWordList.Any())
+        if (this.resultRichText.Text.Any() || _words.Any())
         {
             this.resultRichText.Text = string.Empty;
-            _resultWordList.Clear();
+            _words.Clear();
         }
 
-        _resultWordList = parsingType switch
+        _words = parsingType switch
         {
             ParsingType.StartParsing => await _parser.Parse(this.inputParsingUrlTextBox.Text != _inputParsingUrlTextBoxDefText ? this.inputParsingUrlTextBox.Text : string.Empty),
             ParsingType.ReParsing => await _parser.ReApplyFilterAsync(),
-            _ => _resultWordList
+            _ => _words
         };
 
-        if (_resultWordList.Any())
+        if (_words.Any())
         {
-            this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = string.Join(Environment.NewLine, _resultWordList.Select(x => $"{x.Word} - {x.Quantity}")); });
+            this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = string.Join(Environment.NewLine, _words.Select(x => $"{x.Word} - {x.Quantity}")); });
             this.saveBox.Invoke((MethodInvoker)delegate { saveBox.Enabled = true; });
         }
         else if (!string.IsNullOrWhiteSpace(_parser.DetectorMessageError))
@@ -147,9 +122,6 @@ internal partial class WordParserMainForm : Form
 
         this.Enabled = true;
     }
-
-    private static void OpenFileInExplorer(FileInfo file)
-        => Process.Start(new ProcessStartInfo { FileName = "explorer", Arguments = $"/n, /select, {file.FullName}" });
 
     private void MoveFormPosition(Control control)
     {

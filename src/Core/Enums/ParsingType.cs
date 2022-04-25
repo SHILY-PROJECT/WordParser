@@ -2,6 +2,6 @@
 
 internal enum ParsingType
 {
-    StartParsing = 0,
-    ReParsing = 1
+    StartParsing,
+    ReParsing
 }
