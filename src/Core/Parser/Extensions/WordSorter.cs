@@ -7,6 +7,6 @@ internal static class WordSorter
         WordSortType.SortByAlphabet             => words.OrderBy(x => x.Word),
         WordSortType.SortByUniquenessFromMin    => words.OrderBy(x => x.Quantity),
         WordSortType.SortByUniquenessFromMax    => words.OrderByDescending(x => x.Quantity),
-        _ or WordSortType.NoSorting             => words,
+        WordSortType.NoSorting or _             => words,
     };
 }

@@ -1,6 +1,6 @@
 ﻿namespace WordParser.Core.Enums;
 
-internal enum LetterСaseEnum
+internal enum LetterСase
 {
     Default,
     FirstLetterInUpper,

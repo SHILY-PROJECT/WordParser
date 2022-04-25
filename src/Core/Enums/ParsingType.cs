@@ -1,6 +1,6 @@
 ﻿namespace WordParser.Core.Enums;
 
-internal enum ParsingTypeEnum
+internal enum ParsingType
 {
     StartParsing = 0,
     ReParsing = 1

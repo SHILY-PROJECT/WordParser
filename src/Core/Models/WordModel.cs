@@ -1,13 +1,17 @@
 ﻿namespace WordParser.Core.Models;
 
-internal class WordModel
+internal record WordModel : IEqualityComparer<WordModel>
 {
-    public string? Word { get; set; }
-    public int Quantity { get; set; }
+    public string Word { get; init; } = string.Empty;
+    public int Quantity { get; init; }
 
-    internal WordModel(string word, int quantity)
+    bool IEqualityComparer<WordModel>.Equals(WordModel? firstWordModel, WordModel? secondWordModel)
     {
-        Word = word;
-        Quantity = quantity;
+        return firstWordModel?.Word?.Equals(secondWordModel?.Word, StringComparison.OrdinalIgnoreCase) ?? throw new Exception();
+    }
+
+    int IEqualityComparer<WordModel>.GetHashCode(WordModel wordModel)
+    {
+        return HashCode.Combine(Word.GetHashCode(), wordModel.Word);
     }
 }

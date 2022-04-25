@@ -1,32 +1,40 @@
 ﻿namespace WordParser.Core.Parser;
 
-internal class WordParserMain
+internal class WordParserMain : IWordParser
 {
-    private string _pageInnerText = string.Empty;
+    private readonly WordParserProcessSettingsModel _wordParserProcessSettings;
 
-    internal string? DetectorMessageError { get; private set; }
+    public string DetectorMessageError { get; private set; } = string.Empty;
 
-    internal List<WordModel> Parse(string url, SettingsProcessingWordsModel settingsProcessingWords)
+    private HtmlWeb Web { get; set; } = new();
+    private string InnerPageText { get; set; } = string.Empty;
+
+    public WordParserMain(WordParserProcessSettingsModel wordParserProcessSettingsModel)
     {
-        var resultWords = new List<WordModel>();
+        _wordParserProcessSettings = wordParserProcessSettingsModel;
+    }
+
+    public async Task<IList<WordModel>> Parse(string url)
+    {
+        var words = new List<WordModel>();
 
         try
         {
             if (string.IsNullOrWhiteSpace(url))
-                throw new Exception("URL не указан, либо указан некорректно...");
+                throw new ArgumentException("URL не указан, либо указан некорректно...");
 
             if (!Regex.IsMatch(url, @"http(|s)://.*"))
-                throw new Exception($"Отсутствует протокол. URL должен начинаться с \"https://{url}\", либо с \"http://{url}\".");
+                throw new ArgumentException($"Отсутствует протокол. URL должен начинаться с \"https://{url}\", либо с \"http://{url}\".");
 
-            var htmlPage = new HtmlWeb().Load(url);
+            var html = await Web.LoadFromWebAsync(url);
 
-            if (htmlPage is null || string.IsNullOrWhiteSpace(htmlPage.Text))
-                throw new Exception("Не удалось спарсить сайт");
+            if (html is null || string.IsNullOrWhiteSpace(html.Text))
+                throw new InvalidOperationException("Не удалось спарсить сайт");
 
-            _pageInnerText = htmlPage.DocumentNode.InnerText;
-            resultWords = Parse(settingsProcessingWords);
+            InnerPageText = html.DocumentNode.InnerText;
+            words = (await FilterAsync()).ToList();
 
-            if (resultWords.Count == 0)
+            if (!words.Any())
                 throw new Exception($"Результат парсинга пуст...");
         }
         catch (Exception ex)
@@ -35,18 +43,18 @@ internal class WordParserMain
             Logger.WriteAsync(DetectorMessageError, LogTypeEnum.Error).GetAwaiter().GetResult();
         }
 
-        return resultWords;
+        return words;
     }
 
-    internal List<WordModel> ReParsing(SettingsProcessingWordsModel settingsProcessingWords)
+    public async Task<IList<WordModel>> ReParse()
     {
-        var resultWords = new List<WordModel>();
+        var words = new List<WordModel>();
 
-        if (string.IsNullOrWhiteSpace(_pageInnerText)) return resultWords;
+        if (string.IsNullOrWhiteSpace(InnerPageText)) return words;
 
         try
         {
-            resultWords = Parse(settingsProcessingWords);
+            words = (await FilterAsync()).ToList();
         }
         catch (Exception ex)
         {
@@ -54,31 +62,29 @@ internal class WordParserMain
             Logger.WriteAsync(DetectorMessageError, LogTypeEnum.Error).GetAwaiter().GetResult();
         }
 
-        return resultWords;
+        _wordParserProcessSettings.SettingsIsUpdated = false;
+        return words;
     }
 
-    private List<WordModel> Parse(SettingsProcessingWordsModel settingsProcessingWords)
+    private async Task<IEnumerable<WordModel>> FilterAsync()
+        => await Task.Run(() => Filter());
+
+    private IEnumerable<WordModel> Filter()
     {
-        var resultWords = new List<WordModel>();
-
-        var words = _pageInnerText
-            .Split(settingsProcessingWords.Separators, StringSplitOptions.None)
+        var words = InnerPageText
+            .Split(_wordParserProcessSettings.Separators, StringSplitOptions.None)
             .Select(x => Regex.Replace(x, @"(&nbsp.*?|&\#[0-9]+.*?)", string.Empty))
-            .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+            .Where(x => !string.IsNullOrWhiteSpace(x));
 
-        if (settingsProcessingWords.CheckIsLetter)
-            words = words.Where(x => x.Any(c => char.IsLetter(c))).ToList();
+        if (_wordParserProcessSettings.CheckIsLetter)
+            words = words.Where(x => x.Any(c => char.IsLetter(c)));
 
-        words.ForEach(word =>
+        return new HashSet<WordModel>(words.Select(word => new WordModel
         {
-            if (!resultWords.Any(uWord => string.Equals(uWord.Word, word, StringComparison.CurrentCultureIgnoreCase)))
-                resultWords.Add(new WordModel(word, words.Count(x => string.Equals(x, word, StringComparison.CurrentCultureIgnoreCase))));
-        });
-
-        resultWords = resultWords?.Sort(settingsProcessingWords.SortMode) as List<WordModel>;
-        resultWords = resultWords?.ChangeCase(settingsProcessingWords.RegisterSettings) as List<WordModel>;
-
-        return resultWords ?? new List<WordModel>();
+            Word = word,
+            Quantity = words.Count(w => string.Equals(word, w, StringComparison.CurrentCultureIgnoreCase))
+        }))
+        .Sort(_wordParserProcessSettings.SortMode)
+        .ChangeCase(_wordParserProcessSettings.RegisterSettings) ?? Array.Empty<WordModel>();
     }
-
 }
