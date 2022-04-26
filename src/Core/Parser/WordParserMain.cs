@@ -23,7 +23,7 @@ internal class WordParserMain : IWordParser
 
         HtmlDoc = await Web.LoadFromWebAsync(url);
 
-        if (HtmlDoc is null || string.IsNullOrWhiteSpace(HtmlDoc.Text))
+        if (string.IsNullOrWhiteSpace(HtmlDoc.Text))
             throw new InvalidOperationException("Html of the site is null or empty.");
 
         var words = (await ApplyFilterAsync()).ToList();

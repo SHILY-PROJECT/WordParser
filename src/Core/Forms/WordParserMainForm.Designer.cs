@@ -21,7 +21,7 @@ internal partial class WordParserMainForm
     /// </summary>
     private void InitializeComponent()
     {
-            this.inputParsingUrlTextBox = new System.Windows.Forms.TextBox();
+            this.urlForParsingTextBox = new System.Windows.Forms.TextBox();
             this.startParsingButton = new System.Windows.Forms.Button();
             this.appExitButton = new System.Windows.Forms.Button();
             this.titleLabel = new System.Windows.Forms.Label();
@@ -39,15 +39,15 @@ internal partial class WordParserMainForm
             // 
             // inputParsingUrlTextBox
             // 
-            this.inputParsingUrlTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.inputParsingUrlTextBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.inputParsingUrlTextBox.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.inputParsingUrlTextBox.ForeColor = System.Drawing.Color.DarkGray;
-            this.inputParsingUrlTextBox.Location = new System.Drawing.Point(3, 19);
-            this.inputParsingUrlTextBox.Name = "inputParsingUrlTextBox";
-            this.inputParsingUrlTextBox.Size = new System.Drawing.Size(530, 31);
-            this.inputParsingUrlTextBox.TabIndex = 0;
-            this.inputParsingUrlTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.urlForParsingTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.urlForParsingTextBox.Dock = System.Windows.Forms.DockStyle.Top;
+            this.urlForParsingTextBox.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.urlForParsingTextBox.ForeColor = System.Drawing.Color.DarkGray;
+            this.urlForParsingTextBox.Location = new System.Drawing.Point(3, 19);
+            this.urlForParsingTextBox.Name = "inputParsingUrlTextBox";
+            this.urlForParsingTextBox.Size = new System.Drawing.Size(530, 31);
+            this.urlForParsingTextBox.TabIndex = 0;
+            this.urlForParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // startParsingButton
             // 
@@ -100,7 +100,7 @@ internal partial class WordParserMainForm
             this.parsingGroupBox.BackColor = System.Drawing.Color.Transparent;
             this.parsingGroupBox.Controls.Add(this.settingsParsingButton);
             this.parsingGroupBox.Controls.Add(this.startParsingButton);
-            this.parsingGroupBox.Controls.Add(this.inputParsingUrlTextBox);
+            this.parsingGroupBox.Controls.Add(this.urlForParsingTextBox);
             this.parsingGroupBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.parsingGroupBox.Location = new System.Drawing.Point(12, 36);
             this.parsingGroupBox.Name = "parsingGroupBox";
@@ -214,7 +214,7 @@ internal partial class WordParserMainForm
 
     #endregion
 
-    private System.Windows.Forms.TextBox inputParsingUrlTextBox;
+    private System.Windows.Forms.TextBox urlForParsingTextBox;
     private System.Windows.Forms.Button startParsingButton;
     private System.Windows.Forms.Button appExitButton;
     private System.Windows.Forms.Label titleLabel;
