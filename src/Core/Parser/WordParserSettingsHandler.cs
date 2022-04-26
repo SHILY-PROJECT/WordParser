@@ -2,24 +2,24 @@
 
 internal class WordParserSettingsHandler
 {
-    private static readonly FileInfo _settingsProcessingWordsFile = new("settings_processing_words.ini");
+    private static readonly FileInfo _settingsFile = new("word_parser_process_settings.ini");
 
-    public static void SaveSettings(WordParserProcessSettingsModel settingsProcessingWords)
+    public static void SaveSettings(WordParserProcessSettingsModel wordParserProcessSettings)
     {
-        var settingsContent = JsonSerializer.Serialize(settingsProcessingWords, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(_settingsProcessingWordsFile.FullName, settingsContent, Encoding.UTF8);
+        var settingsContent = JsonSerializer.Serialize(wordParserProcessSettings, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(_settingsFile.FullName, settingsContent, Encoding.UTF8);
     }
 
     public static WordParserProcessSettingsModel GetSettings()
     {
-        var settingsProcessingWords = new WordParserProcessSettingsModel();
+        var wordParserProcessSettings = new WordParserProcessSettingsModel();
 
         try
         {
-            if (_settingsProcessingWordsFile.Exists)
+            if (_settingsFile.Exists)
             {
-                var settingsContent = File.ReadAllText(_settingsProcessingWordsFile.FullName, Encoding.UTF8);
-                settingsProcessingWords = JsonSerializer.Deserialize<WordParserProcessSettingsModel>(settingsContent) ?? new();
+                var settingsContent = File.ReadAllText(_settingsFile.FullName, Encoding.UTF8);
+                wordParserProcessSettings = JsonSerializer.Deserialize<WordParserProcessSettingsModel>(settingsContent);
             }
         }
         catch (Exception ex)
@@ -27,6 +27,6 @@ internal class WordParserSettingsHandler
             Logger.WriteAsync($"Не удалось загрузить настройки парсера  |  MESSAGE ERROR: {ex.Message}", LogTypeEnum.Error).GetAwaiter().GetResult();
         }
 
-        return settingsProcessingWords;
+        return wordParserProcessSettings ?? new();
     }
 }
