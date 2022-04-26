@@ -4,8 +4,8 @@ internal partial class WordParserMainForm : Form
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IWordParser _parser;
-    private readonly string _inputParsingUrlTextBoxDefText;
-    private IList<WordModel> _words;
+    private readonly string _urlForParsingTextBoxDefault = "Enter the URL for parsing...";
+    private IList<WordModel> _words = new List<WordModel>();
 
     public WordParserProcessSettingsModel _wordParserProcessSettings;
 
@@ -17,9 +17,6 @@ internal partial class WordParserMainForm : Form
         _serviceProvider = serviceProvider;
         _parser = parser;
         _wordParserProcessSettings = settingsProcessingWords;
-
-        _words = new List<WordModel>();
-        _inputParsingUrlTextBoxDefText = "Введите URL для парсинга...";
 
         InitializeComponent();
         ProcessFormEvents();
@@ -33,10 +30,10 @@ internal partial class WordParserMainForm : Form
 
         this.Load += (s, e) =>
         {
-            if (string.IsNullOrWhiteSpace(this.inputParsingUrlTextBox.Text) || this.inputParsingUrlTextBox.Text == _inputParsingUrlTextBoxDefText)
+            if (string.IsNullOrWhiteSpace(this.urlForParsingTextBox.Text) || this.urlForParsingTextBox.Text == _urlForParsingTextBoxDefault)
             {
-                this.inputParsingUrlTextBox.Text = _inputParsingUrlTextBoxDefText;
-                this.inputParsingUrlTextBox.ForeColor = Color.DarkGray;
+                this.urlForParsingTextBox.Text = _urlForParsingTextBoxDefault;
+                this.urlForParsingTextBox.ForeColor = Color.DarkGray;
             }
         };
         this.FormClosing += (s, e) => WordParserSettingsHandler.SaveSettings(_wordParserProcessSettings);
@@ -62,20 +59,20 @@ internal partial class WordParserMainForm : Form
             var count = this.resultRichText.Lines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray().Length;
             this.resultGroupBox.Text = count == 0 ? $"Результат" : $"Результат [{count}]";
         };
-        this.inputParsingUrlTextBox.Click += (s, e) =>
+        this.urlForParsingTextBox.Click += (s, e) =>
         {
-            if (this.inputParsingUrlTextBox.Text == _inputParsingUrlTextBoxDefText)
+            if (this.urlForParsingTextBox.Text == _urlForParsingTextBoxDefault)
             {
-                this.inputParsingUrlTextBox.Text = string.Empty;
-                this.inputParsingUrlTextBox.ForeColor = Color.Black;
+                this.urlForParsingTextBox.Text = string.Empty;
+                this.urlForParsingTextBox.ForeColor = Color.Black;
             }
         };
-        this.inputParsingUrlTextBox.LostFocus += (s, e) =>
+        this.urlForParsingTextBox.LostFocus += (s, e) =>
         {
-            if (string.IsNullOrWhiteSpace(this.inputParsingUrlTextBox.Text) || this.inputParsingUrlTextBox.Text == _inputParsingUrlTextBoxDefText)
+            if (string.IsNullOrWhiteSpace(this.urlForParsingTextBox.Text) || this.urlForParsingTextBox.Text == _urlForParsingTextBoxDefault)
             {
-                this.inputParsingUrlTextBox.Text = _inputParsingUrlTextBoxDefText;
-                this.inputParsingUrlTextBox.ForeColor = Color.DarkGray;
+                this.urlForParsingTextBox.Text = _urlForParsingTextBoxDefault;
+                this.urlForParsingTextBox.ForeColor = Color.DarkGray;
             }
         };
 
@@ -110,21 +107,26 @@ internal partial class WordParserMainForm : Form
             _words.Clear();
         }
 
-        _words = parsingType switch
+        try
         {
-            ParsingType.StartParsing => await _parser.Parse(this.inputParsingUrlTextBox.Text != _inputParsingUrlTextBoxDefText ? this.inputParsingUrlTextBox.Text : string.Empty),
-            ParsingType.ReParsing => await _parser.ReApplyFilterAsync(),
-            _ => _words
-        };
+            var task = parsingType switch
+            {
+                ParsingType.StartParsing => _parser.Parse(this.urlForParsingTextBox.Text != _urlForParsingTextBoxDefault ? this.urlForParsingTextBox.Text : string.Empty),
+                ParsingType.ReParsing => _parser.ReApplyFilterAsync(),
+                _ => throw new NotImplementedException($"'{parsingType}' - there is no implementation for this mode.")
+            };
 
-        if (_words.Any())
-        {
-            this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = string.Join(Environment.NewLine, _words.Select(x => $"{x.Word} - {x.Quantity}")); });
-            this.saveBox.Invoke((MethodInvoker)delegate { saveBox.Enabled = true; });
+            if ((_words = await task).Any())
+            {
+                this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = string.Join(Environment.NewLine, _words.Select(x => $"{x.Word} - {x.Quantity}")); });
+                this.saveBox.Invoke((MethodInvoker)delegate { saveBox.Enabled = true; });
+            }
         }
-        else if (!string.IsNullOrWhiteSpace(_parser.DetectorMessageError))
+        catch (Exception ex)
         {
-            this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = $"{_parser.DetectorMessageError}"; });
+            var mr = $"MESSAGE ERROR: {ex.Message}";
+            await Logger.WriteAsync(mr, LogTypeEnum.Error);
+            this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = mr; });
         }
 
         this.Enabled = true;
