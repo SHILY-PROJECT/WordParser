@@ -2,14 +2,19 @@
 
 internal partial class WordParserMainForm : Form
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly IWordParser _parser;
-    private IList<WordModel> _words;
     private readonly string _inputParsingUrlTextBoxDefText;
+    private IList<WordModel> _words;
 
     public WordParserProcessSettingsModel _wordParserProcessSettings;
 
-    internal WordParserMainForm(IWordParser parser, WordParserProcessSettingsModel settingsProcessingWords)
+    public WordParserMainForm(
+        IServiceProvider serviceProvider,
+        IWordParser parser,
+        WordParserProcessSettingsModel settingsProcessingWords)
     {
+        _serviceProvider = serviceProvider;
         _parser = parser;
         _wordParserProcessSettings = settingsProcessingWords;
 
@@ -78,7 +83,9 @@ internal partial class WordParserMainForm : Form
         this.startParsingButton.Click += (s, e) => RunParsing(ParsingType.StartParsing);
         this.settingsParsingButton.Click += (s, e) =>
         {
-            using var wordParserProcessSettingsForm = new WordParserProcessSettingsForm { Owner = this };
+            //using var wordParserProcessSettingsForm = new WordParserProcessSettingsForm { Owner = this };
+            var wordParserProcessSettingsForm = _serviceProvider.GetRequiredService<WordParserProcessSettingsForm>();
+            wordParserProcessSettingsForm.Owner = this;
             wordParserProcessSettingsForm.ShowDialog();
             if (_wordParserProcessSettings.SettingsIsUpdated) RunParsing(ParsingType.ReParsing);
         };
@@ -159,24 +166,25 @@ internal partial class WordParserMainForm : Form
     private const int WM_NCPAINT = 0x0085;
     private const int WM_ACTIVATEAPP = 0x001C;
 
-    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+    [DllImport("dwmapi.dll")]
     public static extern int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS pMarInset);
 
-    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+    [DllImport("dwmapi.dll")]
     public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
-    [System.Runtime.InteropServices.DllImport("dwmapi.dll")]
+    [DllImport("dwmapi.dll")]
     public static extern int DwmIsCompositionEnabled(ref int pfEnabled);
 
-    [System.Runtime.InteropServices.DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
-    private static extern IntPtr CreateRoundRectRgn(
+    [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+    private static extern IntPtr CreateRoundRectRgn
+    (
         int nLeftRect,
         int nTopRect,
         int nRightRect,
         int nBottomRect,
         int nWidthEllipse,
         int nHeightEllipse
-        );
+    );
 
     public struct MARGINS
     {

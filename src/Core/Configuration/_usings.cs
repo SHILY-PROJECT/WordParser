@@ -8,6 +8,7 @@ global using System.Linq;
 global using System.Data;
 global using System.Collections.Generic;
 global using System.Drawing;
+global using System.Runtime.InteropServices;
 global using System.Diagnostics;
 global using System.Threading.Tasks;
 global using System.Windows.Forms;
