@@ -17,7 +17,7 @@ internal class WordParserProcessSettingsModel
         {
             object? value;
 
-            if (prop.Name.Equals(nameof(IsUpdated)) || (value = prop.GetValue(settings)) == prop.GetValue(this)) continue;
+            if (prop.Name.Equals(nameof(IsUpdated)) || (value = prop.GetValue(settings)) is null || value.Equals(prop.GetValue(this))) continue;
             
             prop.SetValue(this, value);
             IsUpdated = true;
