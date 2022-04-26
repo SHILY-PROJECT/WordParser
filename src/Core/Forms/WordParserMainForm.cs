@@ -84,7 +84,7 @@ internal partial class WordParserMainForm : Form
             var wordParserProcessSettingsForm = _serviceProvider.GetRequiredService<WordParserProcessSettingsForm>();
             wordParserProcessSettingsForm.Owner = this;
             wordParserProcessSettingsForm.ShowDialog();
-            if (_wordParserProcessSettings.SettingsIsUpdated) RunParsing(ParsingType.ReParsing);
+            if (_wordParserProcessSettings.IsUpdated) RunParsing(ParsingType.ReParsing);
         };
         #endregion ================================================================================
 

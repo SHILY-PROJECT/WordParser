@@ -33,7 +33,7 @@ internal class WordParserMain : IWordParser
 
     public async Task<IList<WordModel>> ReApplyFilterAsync()
     {
-        _wordParserProcessSettings.SettingsIsUpdated = false;
+        _wordParserProcessSettings.IsUpdated = false;
         return !string.IsNullOrWhiteSpace(InnerPageText) ? (await ApplyFilterAsync()).ToList() : Array.Empty<WordModel>();
     }
 
@@ -55,7 +55,7 @@ internal class WordParserMain : IWordParser
             Word = word,
             Quantity = words.Count(w => string.Equals(word, w, StringComparison.CurrentCultureIgnoreCase))
         }))
-        .Sort(_wordParserProcessSettings.SortMode)
-        .ChangeCase(_wordParserProcessSettings.RegisterSettings) ?? Array.Empty<WordModel>();
+        .Sort(_wordParserProcessSettings.SortType)
+        .ChangeCase(_wordParserProcessSettings.LetterСase) ?? Array.Empty<WordModel>();
     }
 }

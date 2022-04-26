@@ -3,6 +3,7 @@
 internal partial class WordParserProcessSettingsForm : Form
 {
     private readonly IServiceProvider _serviceProvider;
+    private readonly WordParserProcessSettingsModel _wordParserProcessSettings;
 
     private static readonly Dictionary<WordSortType, string> _sortingSettingsMap = new()
     {
@@ -20,9 +21,10 @@ internal partial class WordParserProcessSettingsForm : Form
         [LetterСase.AllLetterInLower] = "все буквы в нижнем регистре"
     };
 
-    public WordParserProcessSettingsForm(IServiceProvider serviceProvider)
+    public WordParserProcessSettingsForm(IServiceProvider serviceProvider, WordParserProcessSettingsModel wordParserProcessSettings)
     {
         _serviceProvider = serviceProvider;
+        _wordParserProcessSettings = wordParserProcessSettings;
 
         InitializeComponent();
         HandleEventsForm();
@@ -49,18 +51,12 @@ internal partial class WordParserProcessSettingsForm : Form
         };
         this.acceptButton.Click += (s, e) =>
         {
-            var newSettings = new WordParserProcessSettingsModel
+            _wordParserProcessSettings.ChangeSettingsIfNeeded(new WordParserProcessSettingsModel
             {
-                SortMode = _sortingSettingsMap.FirstOrDefault(x => x.Value == sortingBox.Text).Key,
-                RegisterSettings = _registerSettingsMap.FirstOrDefault(x => x.Value == registerBox.Text).Key,
+                SortType = _sortingSettingsMap.FirstOrDefault(x => x.Value == sortingBox.Text).Key,
+                LetterСase = _registerSettingsMap.FirstOrDefault(x => x.Value == registerBox.Text).Key,
                 CheckIsLetter = isLetterCheckBox.Checked
-            };
-
-            if (newSettings.SortMode != mainSettings.SortMode ||
-                newSettings.RegisterSettings != mainSettings.RegisterSettings ||
-                newSettings.CheckIsLetter != mainSettings.CheckIsLetter)
-                ((WordParserMainForm)Owner)._wordParserProcessSettings = new WordParserProcessSettingsModel(newSettings, true);
-
+            });
             this.Close();
         };
         this.cancelButton.Click += (s, e) => this.Close();
@@ -68,8 +64,8 @@ internal partial class WordParserProcessSettingsForm : Form
 
     private void SetSettingsToForm(WordParserProcessSettingsModel mainSettings)
     {
-        sortingBox.Text = _sortingSettingsMap[mainSettings.SortMode];
-        registerBox.Text = _registerSettingsMap[mainSettings.RegisterSettings];
+        sortingBox.Text = _sortingSettingsMap[mainSettings.SortType];
+        registerBox.Text = _registerSettingsMap[mainSettings.LetterСase];
         isLetterCheckBox.Checked = mainSettings.CheckIsLetter;
     }
 

@@ -2,24 +2,25 @@
 
 internal class WordParserProcessSettingsModel
 {
-    public WordSortType SortMode { get; set; }
-    public LetterСase RegisterSettings {  get; set; }
+    private static readonly string[] _defaultSeparators = { " ", ",", ".", "!", "?", "\"", "; ", ":", "[", "]", "(", ")", "\n", "\r", "\t" };
+
+    public WordSortType SortType { get; set; }
+    public LetterСase LetterСase {  get; set; }
     public bool CheckIsLetter { get; set; }
 
-    [JsonIgnore]
-    public string[] Separators { get; set; } = new[] { " ", ",", ".", "!", "?", "\"", "; ", ":", "[", "]", "(", ")", "\n", "\r", "\t" };
-    
-    [JsonIgnore]
-    public bool SettingsIsUpdated { get; set; } = default;
+    [JsonIgnore] public string[] Separators { get; set; } = _defaultSeparators;
+    [JsonIgnore] public bool IsUpdated { get; set; }
 
-    public WordParserProcessSettingsModel() { }
-
-    public WordParserProcessSettingsModel(WordParserProcessSettingsModel settingsProcessingWords, bool settingsIsUpdated = false)
+    public void ChangeSettingsIfNeeded(WordParserProcessSettingsModel settings)
     {
-        SortMode = settingsProcessingWords.SortMode;
-        RegisterSettings = settingsProcessingWords.RegisterSettings;
-        CheckIsLetter = settingsProcessingWords.CheckIsLetter;
-        Separators = settingsProcessingWords.Separators;
-        SettingsIsUpdated = settingsIsUpdated;
+        foreach (var prop in typeof(WordParserProcessSettingsModel).GetProperties())
+        {
+            object? value;
+
+            if (prop.Name.Equals(nameof(IsUpdated)) || (value = prop.GetValue(settings)) == prop.GetValue(this)) continue;
+            
+            prop.SetValue(this, value);
+            IsUpdated = true;
+        }
     }
 }
