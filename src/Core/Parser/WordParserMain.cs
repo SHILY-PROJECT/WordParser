@@ -4,10 +4,9 @@ internal class WordParserMain : IWordParser
 {
     private readonly WordParserProcessSettingsModel _wordParserProcessSettings;
 
-    public string DetectorMessageError { get; private set; } = string.Empty;
-
     private HtmlWeb Web { get; set; } = new();
-    private string InnerPageText { get; set; } = string.Empty;
+    private HtmlAgilityPack.HtmlDocument HtmlDoc { get; set; } = new();
+    private string InnerPageText { get => HtmlDoc.DocumentNode.InnerText; }
 
     public WordParserMain(WordParserProcessSettingsModel wordParserProcessSettingsModel)
     {
@@ -22,12 +21,11 @@ internal class WordParserMain : IWordParser
         if (!Regex.IsMatch(url, @"http(|s)://.*"))
             throw new ArgumentException($"The URL does not have a protocol.");
 
-        var html = await Web.LoadFromWebAsync(url);
+        HtmlDoc = await Web.LoadFromWebAsync(url);
 
-        if (html is null || string.IsNullOrWhiteSpace(html.Text))
+        if (HtmlDoc is null || string.IsNullOrWhiteSpace(HtmlDoc.Text))
             throw new InvalidOperationException("Html of the site is null or empty.");
 
-        InnerPageText = html.DocumentNode.InnerText;
         var words = (await ApplyFilterAsync()).ToList();
 
         return words;
