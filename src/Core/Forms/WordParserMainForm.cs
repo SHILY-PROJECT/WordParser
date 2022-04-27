@@ -50,9 +50,9 @@ internal partial class WordParserMainForm : Form
         this.MouseDown += (s, e) => MoveFormPosition(this);
         this.MouseMove += (s, e) => MoveFormPosition(this);
         this.MouseUp += (s, e) => MoveFormPosition(this);
-        this.title.MouseDown += (s, e) => MoveFormPosition(this.title);
-        this.title.MouseMove += (s, e) => MoveFormPosition(this.title);
-        this.title.MouseUp += (s, e) => MoveFormPosition(this.title);
+        this.titleLabel.MouseDown += (s, e) => MoveFormPosition(this.titleLabel);
+        this.titleLabel.MouseMove += (s, e) => MoveFormPosition(this.titleLabel);
+        this.titleLabel.MouseUp += (s, e) => MoveFormPosition(this.titleLabel);
     }
 
     private void ActionOnEventsUI()
