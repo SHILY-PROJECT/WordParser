@@ -5,12 +5,17 @@ internal partial class WaitForm : Form
     public WaitForm()
     {
         InitializeComponent();
-        HandleEventsForm();
+        RegisterFormEvents();
 
         Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 25, 25));
     }
 
-    private void HandleEventsForm()
+    private void RegisterFormEvents()
+    {
+        ActionOnEventsToLoadAndCloseForm();
+    }
+
+    private void ActionOnEventsToLoadAndCloseForm()
     {
         this.Load += (s, e) => this.Location = new Point(
             Owner.Location.X + Owner.Width / 2 - this.Width / 2,

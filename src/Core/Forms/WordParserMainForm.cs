@@ -2,32 +2,38 @@
 
 internal partial class WordParserMainForm : Form
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceProvider _services;
     private readonly IWordParser _parser;
     private readonly string _urlForParsingTextBoxDefault = "Enter the URL for parsing...";
     private IList<WordModel> _words = new List<WordModel>();
 
-    public WordParserProcessSettingsModel _wordParserProcessSettings;
+    private readonly IWordParserSettingsHandler _wordParserSettingsHandler;
 
     public WordParserMainForm(
         IServiceProvider serviceProvider,
         IWordParser parser,
-        WordParserProcessSettingsModel settingsProcessingWords)
+        IWordParserSettingsHandler wordParserSettingsHandler)
     {
-        _serviceProvider = serviceProvider;
+        _services = serviceProvider;
         _parser = parser;
-        _wordParserProcessSettings = settingsProcessingWords;
+        _wordParserSettingsHandler = wordParserSettingsHandler;
+        _wordParserSettingsHandler.SettingsChanged += OnSettingsChanged;
 
         InitializeComponent();
-        ProcessFormEvents();
+        RegisterFormEvents();
     }
 
-    private void ProcessFormEvents()
+    private void RegisterFormEvents()
     {
-        var appExitButtonDefColor = this.appExitButton.ForeColor;
-        var startParsingButtonDefColor = this.startParsingButton.ForeColor;
-        var settingsParsingButtonDefColor = this.settingsParsingButton.ForeColor;
+        ActionOnEventsToLoadAndCloseForm();
+        ActionOnEventsToMoveForm();
+        ActionOnEventsUI();
+        ActionOnEventsToParse();
+        ActionOnEventsToSave();
+    }
 
+    private void ActionOnEventsToLoadAndCloseForm()
+    {
         this.Load += (s, e) =>
         {
             if (string.IsNullOrWhiteSpace(this.urlForParsingTextBox.Text) || this.urlForParsingTextBox.Text == _urlForParsingTextBoxDefault)
@@ -36,16 +42,24 @@ internal partial class WordParserMainForm : Form
                 this.urlForParsingTextBox.ForeColor = Color.DarkGray;
             }
         };
-        this.FormClosing += (s, e) => WordParserSettingsHandler.SaveSettings(_wordParserProcessSettings);
+        this.FormClosing += (s, e) => _wordParserSettingsHandler.SaveSettings();
+    }
 
-        #region [MOVING FORM]====================================================================
+    private void ActionOnEventsToMoveForm()
+    {
         this.MouseDown += (s, e) => MoveFormPosition(this);
         this.MouseMove += (s, e) => MoveFormPosition(this);
         this.MouseUp += (s, e) => MoveFormPosition(this);
-        this.titleLabel.MouseDown += (s, e) => MoveFormPosition(this.titleLabel);
-        this.titleLabel.MouseMove += (s, e) => MoveFormPosition(this.titleLabel);
-        this.titleLabel.MouseUp += (s, e) => MoveFormPosition(this.titleLabel);
-        #endregion ==============================================================================
+        this.title.MouseDown += (s, e) => MoveFormPosition(this.title);
+        this.title.MouseMove += (s, e) => MoveFormPosition(this.title);
+        this.title.MouseUp += (s, e) => MoveFormPosition(this.title);
+    }
+
+    private void ActionOnEventsUI()
+    {
+        var appExitButtonDefColor = this.appExitButton.ForeColor;
+        var startParsingButtonDefColor = this.startParsingButton.ForeColor;
+        var settingsParsingButtonDefColor = this.settingsParsingButton.ForeColor;
 
         this.appExitButton.Click += (s, e) => Application.Exit();
         this.appExitButton.MouseMove += (s, e) => this.appExitButton.ForeColor = Color.White;
@@ -75,29 +89,37 @@ internal partial class WordParserMainForm : Form
                 this.urlForParsingTextBox.ForeColor = Color.DarkGray;
             }
         };
-
-        #region [PARSING]==========================================================================
-        this.startParsingButton.Click += (s, e) => RunParsing(ParsingType.StartParsing);
-        this.settingsParsingButton.Click += (s, e) =>
-        {
-            //using var wordParserProcessSettingsForm = new WordParserProcessSettingsForm { Owner = this };
-            var wordParserProcessSettingsForm = _serviceProvider.GetRequiredService<WordParserProcessSettingsForm>();
-            wordParserProcessSettingsForm.Owner = this;
-            wordParserProcessSettingsForm.ShowDialog();
-            if (_wordParserProcessSettings.IsUpdated) RunParsing(ParsingType.ReParsing);
-        };
-        #endregion ================================================================================
-
-        #region [SAVE RESULT]======================================================================
-        this.saveResultToTxtButton.Click += async (s, e) => await KeeperOfResult.SaveToFileAsync(_words, ResultFileType.Txt);
-        this.saveResultToCsvButton.Click += async (s, e) => await KeeperOfResult.SaveToFileAsync(_words, ResultFileType.Csv);
-        #endregion ================================================================================
     }
 
-    private async void RunParsing(ParsingType parsingType)
+    private void ActionOnEventsToSave()
     {
-        using var waitForm = new WaitForm { Owner = this };
+        this.saveResultToTxtButton.Click += async (s, e) => await KeeperOfResult.SaveToFileAsync(_words, ResultFileType.Txt);
+        this.saveResultToCsvButton.Click += async (s, e) => await KeeperOfResult.SaveToFileAsync(_words, ResultFileType.Csv);
+    }
+
+    private void ActionOnEventsToParse()
+    {
+        this.startParsingButton.Click += (s, e) => Run(ParserMode.Parse);
+        this.settingsParsingButton.Click += (s, e) =>
+        {
+            using var wordParserProcessSettingsForm = _services.GetRequiredService<WordParserProcessSettingsForm>();
+            wordParserProcessSettingsForm.Owner = this;
+            wordParserProcessSettingsForm.ShowDialog();
+        };
+    }
+
+    private void OnSettingsChanged(object source, WordParseSettingsChangesEventArgs args)
+    {
+        Run(args.ParserMode);
+    }
+
+    private async void Run(ParserMode mode)
+    {
+        using var waitForm = _services.GetRequiredService<WaitForm>();
+
+        waitForm.Owner = this;
         waitForm.Show();
+
         this.Enabled = false;
         this.saveBox.Enabled = false;
 
@@ -109,11 +131,11 @@ internal partial class WordParserMainForm : Form
 
         try
         {
-            var task = parsingType switch
+            var task = mode switch
             {
-                ParsingType.StartParsing => _parser.Parse(this.urlForParsingTextBox.Text != _urlForParsingTextBoxDefault ? this.urlForParsingTextBox.Text : string.Empty),
-                ParsingType.ReParsing => _parser.ReApplyFilterAsync(),
-                _ => throw new NotImplementedException($"'{parsingType}' - there is no implementation for this mode.")
+                ParserMode.Parse => _parser.Parse(this.urlForParsingTextBox.Text != _urlForParsingTextBoxDefault ? this.urlForParsingTextBox.Text : string.Empty),
+                ParserMode.ReApplyFilter => _parser.ReApplyFilterAsync(),
+                _ => throw new NotImplementedException($"'{mode}' - there is no implementation for this mode.")
             };
 
             if ((_words = await task).Any())
