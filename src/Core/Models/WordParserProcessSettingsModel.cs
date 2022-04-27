@@ -9,5 +9,4 @@ internal class WordParserProcessSettingsModel
     public bool CheckIsLetter { get; set; }
 
     [JsonIgnore] public string[] Separators { get; set; } = _defaultSeparators;
-    [JsonIgnore] public bool IsUpdated { get; set; }
 }

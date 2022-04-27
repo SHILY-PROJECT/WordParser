@@ -21,22 +21,18 @@ internal class WordParserSettingsHandler : IWordParserSettingsHandler
 
         foreach (var prop in typeof(WordParserProcessSettingsModel).GetProperties())
         {
-            object? value;
-
-            if (prop.Name.Equals(nameof(CurrentSettings.IsUpdated), StringComparison.OrdinalIgnoreCase) ||
-               (value = prop.GetValue(updatedSettings)) is null || value.Equals(prop.GetValue(CurrentSettings))) continue;
-
-            prop.SetValue(CurrentSettings, value);
-            isChanged = true;
+            if (prop.GetValue(updatedSettings) is object value && !value.Equals(prop.GetValue(CurrentSettings)))
+            {
+                prop.SetValue(CurrentSettings, value);
+                isChanged = true;
+            }
         }
 
         if (isChanged) OnSettingsChanged();
     }
 
     protected virtual void OnSettingsChanged()
-    {
-        SettingsChanged?.Invoke(this, new WordParseSettingsChangesEventArgs(ParserMode.ReApplyFilter));
-    }
+        => SettingsChanged?.Invoke(this, new(ParserMode.ReApplyFilter));
 
     private WordParserProcessSettingsModel GetSettings()
     {
