@@ -2,10 +2,9 @@
 
 internal partial class WordParserProcessSettingsForm : Form
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly WordParserProcessSettingsModel _wordParserProcessSettings;
+    private readonly IWordParserSettingsHandler _wordParserSettingsHandler;
 
-    private static readonly Dictionary<WordSortType, string> _sortingSettingsMap = new()
+    private readonly Dictionary<WordSortType, string> _sortingSettingsMap = new()
     {
         [WordSortType.NoSorting] = "Без сортировки",
         [WordSortType.SortByAlphabet] = "Сортировать по алфавиту",
@@ -13,7 +12,7 @@ internal partial class WordParserProcessSettingsForm : Form
         [WordSortType.SortByUniquenessFromMax] = "Сортировать от менее уникальных"
     };
 
-    private static readonly Dictionary<LetterСase, string> _registerSettingsMap = new()
+    private readonly Dictionary<LetterСase, string> _registerSettingsMap = new()
     {
         [LetterСase.Default] = "иСхоДный виД",
         [LetterСase.FirstLetterInUpper] = "Первая буква в верхнем регистре",
@@ -21,37 +20,35 @@ internal partial class WordParserProcessSettingsForm : Form
         [LetterСase.AllLetterInLower] = "все буквы в нижнем регистре"
     };
 
-    public WordParserProcessSettingsForm(IServiceProvider serviceProvider, WordParserProcessSettingsModel wordParserProcessSettings)
+    public WordParserProcessSettingsForm(IWordParserSettingsHandler wordParserSettingsHandler)
     {
-        _serviceProvider = serviceProvider;
-        _wordParserProcessSettings = wordParserProcessSettings;
+        _wordParserSettingsHandler = wordParserSettingsHandler;
 
         InitializeComponent();
-        HandleEventsForm();
+        RegisterFormEvents();
 
         Region = Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 25, 25));
     }
 
-    private void HandleEventsForm()
+    private void RegisterFormEvents()
     {
-        var mainSettings = ((WordParserMainForm)ActiveForm)._wordParserProcessSettings;
-        var acceptButtonDefColor = this.acceptButton.ForeColor;
-        var cancelButtonDefColor = this.cancelButton.ForeColor;
+        ActionOnEventsUI();
+        ActionOnEventsToLoadAndCloseForm();
+    }
 
-        this.acceptButton.MouseMove += (s, e) => this.acceptButton.ForeColor = Color.White;
-        this.acceptButton.MouseLeave += (s, e) => this.acceptButton.ForeColor = acceptButtonDefColor;
-        this.cancelButton.MouseMove += (s, e) => this.cancelButton.ForeColor = Color.White;
-        this.cancelButton.MouseLeave += (s, e) => this.cancelButton.ForeColor = cancelButtonDefColor;
+    private void ActionOnEventsToLoadAndCloseForm()
+    {
         this.Load += (s, e) =>
         {
             this.Location = new Point(Owner.Location.X + Owner.Width / 2 - this.Width / 2, Owner.Location.Y + Owner.Height / 2 - this.Height / 2);
             this.sortingBox.Items.AddRange(_sortingSettingsMap.Values.ToArray());
             this.registerBox.Items.AddRange(_registerSettingsMap.Values.ToArray());
-            SetSettingsToForm(mainSettings);
+
+            SetSettingsToForm();
         };
         this.acceptButton.Click += (s, e) =>
         {
-            _wordParserProcessSettings.ChangeSettingsIfNeeded(new WordParserProcessSettingsModel
+            _wordParserSettingsHandler.ChangeSettingsIfNeeded(new WordParserProcessSettingsModel
             {
                 SortType = _sortingSettingsMap.FirstOrDefault(x => x.Value == sortingBox.Text).Key,
                 LetterСase = _registerSettingsMap.FirstOrDefault(x => x.Value == registerBox.Text).Key,
@@ -62,11 +59,24 @@ internal partial class WordParserProcessSettingsForm : Form
         this.cancelButton.Click += (s, e) => this.Close();
     }
 
-    private void SetSettingsToForm(WordParserProcessSettingsModel mainSettings)
+    private void ActionOnEventsUI()
     {
-        sortingBox.Text = _sortingSettingsMap[mainSettings.SortType];
-        registerBox.Text = _registerSettingsMap[mainSettings.LetterСase];
-        isLetterCheckBox.Checked = mainSettings.CheckIsLetter;
+        var acceptButtonDefColor = this.acceptButton.ForeColor;
+        var cancelButtonDefColor = this.cancelButton.ForeColor;
+
+        this.acceptButton.MouseMove += (s, e) => this.acceptButton.ForeColor = Color.White;
+        this.acceptButton.MouseLeave += (s, e) => this.acceptButton.ForeColor = acceptButtonDefColor;
+        this.cancelButton.MouseMove += (s, e) => this.cancelButton.ForeColor = Color.White;
+        this.cancelButton.MouseLeave += (s, e) => this.cancelButton.ForeColor = cancelButtonDefColor;
+    }
+
+    private void SetSettingsToForm()
+    {
+        var cfg = _wordParserSettingsHandler.CurrentSettings;
+
+        sortingBox.Text = _sortingSettingsMap[cfg.SortType];
+        registerBox.Text = _registerSettingsMap[cfg.LetterСase];
+        isLetterCheckBox.Checked = cfg.CheckIsLetter;
     }
 
     #region Shadow of form & Border for form.

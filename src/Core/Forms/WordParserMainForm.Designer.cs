@@ -24,7 +24,7 @@ internal partial class WordParserMainForm
             this.urlForParsingTextBox = new System.Windows.Forms.TextBox();
             this.startParsingButton = new System.Windows.Forms.Button();
             this.appExitButton = new System.Windows.Forms.Button();
-            this.titleLabel = new System.Windows.Forms.Label();
+            this.title = new System.Windows.Forms.Label();
             this.parsingGroupBox = new System.Windows.Forms.GroupBox();
             this.settingsParsingButton = new System.Windows.Forms.Button();
             this.resultGroupBox = new System.Windows.Forms.GroupBox();
@@ -81,17 +81,17 @@ internal partial class WordParserMainForm
             // 
             // titleLabel
             // 
-            this.titleLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.titleLabel.AutoSize = true;
-            this.titleLabel.BackColor = System.Drawing.Color.Transparent;
-            this.titleLabel.Font = new System.Drawing.Font("Segoe UI Semibold", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.titleLabel.ForeColor = System.Drawing.Color.DarkGray;
-            this.titleLabel.Location = new System.Drawing.Point(221, 3);
-            this.titleLabel.Name = "titleLabel";
-            this.titleLabel.Size = new System.Drawing.Size(111, 25);
-            this.titleLabel.TabIndex = 3;
-            this.titleLabel.Text = "WordParser";
-            this.titleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.title.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.title.AutoSize = true;
+            this.title.BackColor = System.Drawing.Color.Transparent;
+            this.title.Font = new System.Drawing.Font("Segoe UI Semibold", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.title.ForeColor = System.Drawing.Color.DarkGray;
+            this.title.Location = new System.Drawing.Point(221, 3);
+            this.title.Name = "titleLabel";
+            this.title.Size = new System.Drawing.Size(111, 25);
+            this.title.TabIndex = 3;
+            this.title.Text = "WordParser";
+            this.title.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // parsingGroupBox
             // 
@@ -195,7 +195,7 @@ internal partial class WordParserMainForm
             this.Controls.Add(this.saveBox);
             this.Controls.Add(this.resultGroupBox);
             this.Controls.Add(this.parsingGroupBox);
-            this.Controls.Add(this.titleLabel);
+            this.Controls.Add(this.title);
             this.Controls.Add(this.appExitButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximumSize = new System.Drawing.Size(560, 462);
@@ -217,7 +217,7 @@ internal partial class WordParserMainForm
     private System.Windows.Forms.TextBox urlForParsingTextBox;
     private System.Windows.Forms.Button startParsingButton;
     private System.Windows.Forms.Button appExitButton;
-    private System.Windows.Forms.Label titleLabel;
+    private System.Windows.Forms.Label title;
     private System.Windows.Forms.GroupBox parsingGroupBox;
     private System.Windows.Forms.GroupBox resultGroupBox;
     private System.Windows.Forms.RichTextBox resultRichText;
