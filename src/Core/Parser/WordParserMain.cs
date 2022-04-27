@@ -2,15 +2,15 @@
 
 internal class WordParserMain : IWordParser
 {
-    private readonly WordParserProcessSettingsModel _wordParserProcessSettings;
+    private readonly IWordParserSettingsHandler _wordParserSettingsHandler;
 
     private HtmlWeb Web { get; set; } = new();
     private HtmlAgilityPack.HtmlDocument HtmlDoc { get; set; } = new();
     private string InnerPageText { get => HtmlDoc.DocumentNode.InnerText; }
 
-    public WordParserMain(WordParserProcessSettingsModel wordParserProcessSettingsModel)
+    public WordParserMain(IWordParserSettingsHandler wordParserSettingsHandler)
     {
-        _wordParserProcessSettings = wordParserProcessSettingsModel;
+        _wordParserSettingsHandler = wordParserSettingsHandler;
     }
 
     public async Task<IList<WordModel>> Parse(string url)
@@ -32,30 +32,28 @@ internal class WordParserMain : IWordParser
     }
 
     public async Task<IList<WordModel>> ReApplyFilterAsync()
-    {
-        _wordParserProcessSettings.IsUpdated = false;
-        return !string.IsNullOrWhiteSpace(InnerPageText) ? (await ApplyFilterAsync()).ToList() : Array.Empty<WordModel>();
-    }
+        => !string.IsNullOrWhiteSpace(InnerPageText) ? (await ApplyFilterAsync()).ToList() : Array.Empty<WordModel>();
 
     private async Task<IEnumerable<WordModel>> ApplyFilterAsync()
         => await Task.Run(() => ApplyFilter());
 
     private IEnumerable<WordModel> ApplyFilter()
     {
+        var cfg = _wordParserSettingsHandler.CurrentSettings;
+
         var words = InnerPageText
-            .Split(_wordParserProcessSettings.Separators, StringSplitOptions.None)
+            .Split(cfg.Separators, StringSplitOptions.None)
             .Select(x => Regex.Replace(x, @"(&nbsp.*?|&\#[0-9]+.*?)", string.Empty))
             .Where(x => !string.IsNullOrWhiteSpace(x));
 
-        if (_wordParserProcessSettings.CheckIsLetter)
+        if (cfg.CheckIsLetter)
             words = words.Where(x => x.Any(c => char.IsLetter(c)));
 
         return new HashSet<WordModel>(words.Select(word => new WordModel
         {
             Word = word,
             Quantity = words.Count(w => string.Equals(word, w, StringComparison.CurrentCultureIgnoreCase))
-        }))
-        .Sort(_wordParserProcessSettings.SortType)
-        .ChangeCase(_wordParserProcessSettings.LetterСase) ?? Array.Empty<WordModel>();
+        }),
+        new WordEqualityComparer()).Sort(cfg.SortType).ChangeCase(cfg.LetterСase) ?? Array.Empty<WordModel>();
     }
 }
