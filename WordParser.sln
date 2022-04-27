@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31717.71
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WordParser", "WordParser\WordParser.csproj", "{7E153D06-B51D-45C6-B783-1DDFD2342BA6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3209A998-322C-49BD-B149-A6397C6DC341}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WordParser", "src\WordParser.csproj", "{84B2A2A0-FAB6-4765-A055-A10D9DB2E2F9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,13 +13,16 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7E153D06-B51D-45C6-B783-1DDFD2342BA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7E153D06-B51D-45C6-B783-1DDFD2342BA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7E153D06-B51D-45C6-B783-1DDFD2342BA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7E153D06-B51D-45C6-B783-1DDFD2342BA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84B2A2A0-FAB6-4765-A055-A10D9DB2E2F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84B2A2A0-FAB6-4765-A055-A10D9DB2E2F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84B2A2A0-FAB6-4765-A055-A10D9DB2E2F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84B2A2A0-FAB6-4765-A055-A10D9DB2E2F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{84B2A2A0-FAB6-4765-A055-A10D9DB2E2F9} = {3209A998-322C-49BD-B149-A6397C6DC341}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5F972276-402A-4629-8458-3F053927B239}
