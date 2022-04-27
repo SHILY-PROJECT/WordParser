@@ -5,10 +5,11 @@ internal static class ParserComponentRegistrar
     public static IServiceCollection AddParserComponents(this IServiceCollection services)
     {
         services
-            .AddSingleton(s => WordParserSettingsHandler.GetSettings())
+            .AddSingleton<IWordParserSettingsHandler, WordParserSettingsHandler>()
             .AddSingleton<IWordParser, WordParserMain>()
             .AddTransient<WordParserMainForm>()
-            .AddTransient<WordParserProcessSettingsForm>();
+            .AddTransient<WordParserProcessSettingsForm>()
+            .AddTransient<WaitForm>();
 
         return services;
     }
