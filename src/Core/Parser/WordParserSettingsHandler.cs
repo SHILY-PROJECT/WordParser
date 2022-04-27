@@ -1,16 +1,44 @@
 ﻿namespace WordParser.Core.Parser;
 
-internal class WordParserSettingsHandler
+internal class WordParserSettingsHandler : IWordParserSettingsHandler
 {
-    private static readonly FileInfo _settingsFile = new("word_parser_process_settings.ini");
+    private readonly FileInfo _settingsFile = new("word_parser_process_settings.ini");
+    private WordParserProcessSettingsModel? _currentSettings;
 
-    public static void SaveSettings(WordParserProcessSettingsModel wordParserProcessSettings)
+    public event EventHandler<WordParseSettingsChangesEventArgs>? SettingsChanged;
+
+    public WordParserProcessSettingsModel CurrentSettings { get => _currentSettings ??= GetSettings(); }
+
+    public void SaveSettings()
     {
-        var settingsContent = JsonSerializer.Serialize(wordParserProcessSettings, new JsonSerializerOptions { WriteIndented = true });
+        var settingsContent = JsonSerializer.Serialize(CurrentSettings, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(_settingsFile.FullName, settingsContent, Encoding.UTF8);
     }
 
-    public static WordParserProcessSettingsModel GetSettings()
+    public void ChangeSettingsIfNeeded(WordParserProcessSettingsModel updatedSettings)
+    {
+        var isChanged = default(bool);
+
+        foreach (var prop in typeof(WordParserProcessSettingsModel).GetProperties())
+        {
+            object? value;
+
+            if (prop.Name.Equals(nameof(CurrentSettings.IsUpdated), StringComparison.OrdinalIgnoreCase) ||
+               (value = prop.GetValue(updatedSettings)) is null || value.Equals(prop.GetValue(CurrentSettings))) continue;
+
+            prop.SetValue(CurrentSettings, value);
+            isChanged = true;
+        }
+
+        if (isChanged) OnSettingsChanged();
+    }
+
+    protected virtual void OnSettingsChanged()
+    {
+        SettingsChanged?.Invoke(this, new WordParseSettingsChangesEventArgs(ParserMode.ReApplyFilter));
+    }
+
+    private WordParserProcessSettingsModel GetSettings()
     {
         var wordParserProcessSettings = new WordParserProcessSettingsModel();
 
@@ -22,10 +50,7 @@ internal class WordParserSettingsHandler
                 wordParserProcessSettings = JsonSerializer.Deserialize<WordParserProcessSettingsModel>(settingsContent);
             }
         }
-        catch (Exception ex)
-        {
-            Logger.WriteAsync($"Не удалось загрузить настройки парсера  |  MESSAGE ERROR: {ex.Message}", LogTypeEnum.Error).GetAwaiter().GetResult();
-        }
+        catch { }
 
         return wordParserProcessSettings ?? new();
     }

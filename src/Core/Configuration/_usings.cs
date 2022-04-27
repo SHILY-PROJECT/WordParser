@@ -23,3 +23,4 @@ global using WordParser.Core.Configuration;
 global using WordParser.Core.Toolkit.LoggerTool;
 global using WordParser.Core.Parser;
 global using WordParser.Core.Parser.Extensions;
+global using WordParser.Core.Parser.Components;
