@@ -5,14 +5,14 @@ internal class WordParserSettingsHandler : IWordParserSettingsHandler
     private readonly FileInfo _settingsFile = new("word_parser_process_settings.ini");
     private WordParserProcessSettingsModel? _currentSettings;
 
-    public event EventHandler<WordParseSettingsChangesEventArgs>? SettingsChanged;
+    public WordParserProcessSettingsModel CurrentSettings { get => _currentSettings ??= Load(); }
 
-    public WordParserProcessSettingsModel CurrentSettings { get => _currentSettings ??= GetSettings(); }
+    public event EventHandler<WordParseSettingsChangesEventArgs>? SettingsChanged;
 
     public void SaveSettings()
     {
-        var settingsContent = JsonSerializer.Serialize(CurrentSettings, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(_settingsFile.FullName, settingsContent, Encoding.UTF8);
+        var cfgContents = JsonSerializer.Serialize(CurrentSettings, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(_settingsFile.FullName, cfgContents, Encoding.UTF8);
     }
 
     public void ChangeSettingsIfNeeded(WordParserProcessSettingsModel updatedSettings)
@@ -31,23 +31,26 @@ internal class WordParserSettingsHandler : IWordParserSettingsHandler
         if (isChanged) OnSettingsChanged();
     }
 
-    protected virtual void OnSettingsChanged()
-        => SettingsChanged?.Invoke(this, new(ParserMode.ReApplyFilter));
+    protected virtual void OnSettingsChanged() =>
+        SettingsChanged?.Invoke(this, new(ParserMode.ReApplyFilter));
 
-    private WordParserProcessSettingsModel GetSettings()
+    private WordParserProcessSettingsModel Load()
     {
-        var wordParserProcessSettings = new WordParserProcessSettingsModel();
+        WordParserProcessSettingsModel? cfg = null;
 
         try
         {
             if (_settingsFile.Exists)
             {
-                var settingsContent = File.ReadAllText(_settingsFile.FullName, Encoding.UTF8);
-                wordParserProcessSettings = JsonSerializer.Deserialize<WordParserProcessSettingsModel>(settingsContent);
+                var cfgContents = File.ReadAllText(_settingsFile.FullName, Encoding.UTF8);
+                cfg = JsonSerializer.Deserialize<WordParserProcessSettingsModel>(cfgContents);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Logger.Write(ex.Message, LogTypeEnum.Error);
+        }
 
-        return wordParserProcessSettings ?? new();
+        return cfg ?? new();
     }
 }
