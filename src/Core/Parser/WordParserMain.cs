@@ -54,6 +54,6 @@ internal class WordParserMain : IWordParser
             Word = word,
             Quantity = words.Count(w => string.Equals(word, w, StringComparison.CurrentCultureIgnoreCase))
         }),
-        new WordEqualityComparer()).Sort(cfg.SortType).ChangeCase(cfg.LetterСase) ?? Array.Empty<WordModel>();
+        new WordEqualityComparer()).Sort(cfg.SortType).ChangeCase(cfg.LetterCase) ?? Array.Empty<WordModel>();
     }
 }

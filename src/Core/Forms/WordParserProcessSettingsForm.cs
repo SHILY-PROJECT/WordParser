@@ -12,12 +12,12 @@ internal partial class WordParserProcessSettingsForm : Form
         [WordSortType.SortByUniquenessFromMax] = "Сортировать от менее уникальных"
     };
 
-    private readonly Dictionary<LetterСase, string> _registerSettingsMap = new()
+    private readonly Dictionary<LetterCase, string> _registerSettingsMap = new()
     {
-        [LetterСase.Default] = "иСхоДный виД",
-        [LetterСase.FirstLetterInUpper] = "Первая буква в верхнем регистре",
-        [LetterСase.AllLetterInUpper] = "ВСЕ БУКВЫ В ВЕРХНЕМ РЕГИСТРЕ",
-        [LetterСase.AllLetterInLower] = "все буквы в нижнем регистре"
+        [LetterCase.Default] = "иСхоДный виД",
+        [LetterCase.FirstLetterInUpper] = "Первая буква в верхнем регистре",
+        [LetterCase.AllLetterInUpper] = "ВСЕ БУКВЫ В ВЕРХНЕМ РЕГИСТРЕ",
+        [LetterCase.AllLetterInLower] = "все буквы в нижнем регистре"
     };
 
     public WordParserProcessSettingsForm(IWordParserSettingsHandler wordParserSettingsHandler)
@@ -51,7 +51,7 @@ internal partial class WordParserProcessSettingsForm : Form
             _wordParserSettingsHandler.ChangeSettingsIfNeeded(new WordParserProcessSettingsModel
             {
                 SortType = _sortingSettingsMap.FirstOrDefault(x => x.Value == sortingBox.Text).Key,
-                LetterСase = _registerSettingsMap.FirstOrDefault(x => x.Value == registerBox.Text).Key,
+                LetterCase = _registerSettingsMap.FirstOrDefault(x => x.Value == registerBox.Text).Key,
                 CheckIsLetter = isLetterCheckBox.Checked
             });
             this.Close();
@@ -75,7 +75,7 @@ internal partial class WordParserProcessSettingsForm : Form
         var cfg = _wordParserSettingsHandler.CurrentSettings;
 
         sortingBox.Text = _sortingSettingsMap[cfg.SortType];
-        registerBox.Text = _registerSettingsMap[cfg.LetterСase];
+        registerBox.Text = _registerSettingsMap[cfg.LetterCase];
         isLetterCheckBox.Checked = cfg.CheckIsLetter;
     }
 
