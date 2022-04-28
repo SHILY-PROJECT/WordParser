@@ -16,17 +16,17 @@ internal class Logger
         }
     }
 
-    public static void Write(string message, LogTypeEnum typeLog) =>
+    public static void Write(string message, LogType typeLog) =>
         File.AppendAllLines(LogFile.FullName, new[] { FormatMessage(typeLog, message) }, Encoding.UTF8);
 
-    public static async Task WriteAsync(string message, LogTypeEnum typeLog) =>
+    public static async Task WriteAsync(string message, LogType typeLog) =>
         await File.AppendAllLinesAsync(LogFile.FullName, new[] { FormatMessage(typeLog, message) }, Encoding.UTF8);
 
-    private static string FormatMessage(LogTypeEnum typeLog, string message) => new Dictionary<LogTypeEnum, string>
+    private static string FormatMessage(LogType typeLog, string message) => new Dictionary<LogType, string>
     {
-        [LogTypeEnum.Info] = $"[{CurrentDate}]      |INFO|      {message}",
-        [LogTypeEnum.Warning] = $"[{CurrentDate}]      |WARNING|   {message}",
-        [LogTypeEnum.Error] = $"[{CurrentDate}]      |ERROR|     {message}"
+        [LogType.Info] = $"[{CurrentDate}]      |INFO|      {message}",
+        [LogType.Warning] = $"[{CurrentDate}]      |WARNING|   {message}",
+        [LogType.Error] = $"[{CurrentDate}]      |ERROR|     {message}"
     }
     [typeLog];
 }

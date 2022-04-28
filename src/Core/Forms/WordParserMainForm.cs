@@ -147,7 +147,7 @@ internal partial class WordParserMainForm : Form
         catch (Exception ex)
         {
             var mr = $"MESSAGE ERROR: {ex.Message}";
-            await Logger.WriteAsync(mr, LogTypeEnum.Error);
+            await Logger.WriteAsync(mr, LogType.Error);
             this.resultRichText.Invoke((MethodInvoker)delegate { resultRichText.Text = mr; });
         }
 

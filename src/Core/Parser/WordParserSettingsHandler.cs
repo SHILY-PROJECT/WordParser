@@ -48,7 +48,7 @@ internal class WordParserSettingsHandler : IWordParserSettingsHandler
         }
         catch (Exception ex)
         {
-            Logger.Write(ex.Message, LogTypeEnum.Error);
+            Logger.Write(ex.Message, LogType.Error);
         }
 
         return cfg ?? new();

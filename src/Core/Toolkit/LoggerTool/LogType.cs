@@ -1,6 +1,6 @@
 ﻿namespace WordParser.Core.Toolkit.LoggerTool;
 
-internal enum LogTypeEnum
+internal enum LogType
 {
     Info,
     Warning,
