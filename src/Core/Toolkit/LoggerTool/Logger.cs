@@ -2,17 +2,25 @@
 
 internal class Logger
 {
-    private static readonly FileInfo _log = new(Path.Combine("logs", $"log - {DateTime.Now:yyyy-MM-dd}.log"));
+    private static readonly FileInfo _logFile = new(Path.Combine("logs", $"log - {DateTime.Now:yyyy-MM-dd}.log"));
 
     private static string CurrentDate { get => $"{DateTime.Now:yyyy-MM-dd   HH-mm-ss}"; }
 
-    public static async Task WriteAsync(string message, LogTypeEnum typeLog)
+    private static FileInfo LogFile
     {
-        if (_log is null || _log.Directory is null) return;
-        else if (!_log.Directory.Exists) _log.Directory.Create();
-
-        await File.AppendAllLinesAsync(_log.FullName, new[] { FormatMessage(typeLog, message) }, Encoding.UTF8);
+        get
+        {
+            if (_logFile.Directory != null && !_logFile.Directory.Exists)
+                _logFile.Directory.Create();
+            return _logFile;
+        }
     }
+
+    public static void Write(string message, LogTypeEnum typeLog) =>
+        File.AppendAllLines(LogFile.FullName, new[] { FormatMessage(typeLog, message) }, Encoding.UTF8);
+
+    public static async Task WriteAsync(string message, LogTypeEnum typeLog) =>
+        await File.AppendAllLinesAsync(LogFile.FullName, new[] { FormatMessage(typeLog, message) }, Encoding.UTF8);
 
     private static string FormatMessage(LogTypeEnum typeLog, string message) => new Dictionary<LogTypeEnum, string>
     {
