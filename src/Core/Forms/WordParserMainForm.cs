@@ -4,10 +4,9 @@ internal partial class WordParserMainForm : Form
 {
     private readonly IServiceProvider _services;
     private readonly IWordParser _parser;
-    private readonly string _urlForParsingTextBoxDefault = "Enter the URL for parsing...";
-    private IList<WordModel> _words = new List<WordModel>();
-
     private readonly IWordParserSettingsHandler _wordParserSettingsHandler;
+
+    private IList<WordModel> _words = new List<WordModel>();
 
     public WordParserMainForm(
         IServiceProvider serviceProvider,
@@ -17,6 +16,7 @@ internal partial class WordParserMainForm : Form
         _services = serviceProvider;
         _parser = parser;
         _wordParserSettingsHandler = wordParserSettingsHandler;
+
         _wordParserSettingsHandler.SettingsChanged += OnSettingsChanged;
 
         InitializeComponent();
@@ -34,14 +34,6 @@ internal partial class WordParserMainForm : Form
 
     private void ActionOnEventsToLoadAndCloseForm()
     {
-        this.Load += (s, e) =>
-        {
-            if (string.IsNullOrWhiteSpace(this.urlForParsingTextBox.Text) || this.urlForParsingTextBox.Text == _urlForParsingTextBoxDefault)
-            {
-                this.urlForParsingTextBox.Text = _urlForParsingTextBoxDefault;
-                this.urlForParsingTextBox.ForeColor = Color.DarkGray;
-            }
-        };
         this.FormClosing += (s, e) => _wordParserSettingsHandler.SaveSettings();
     }
 
@@ -73,22 +65,6 @@ internal partial class WordParserMainForm : Form
             var count = this.resultRichText.Lines.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray().Length;
             this.resultGroupBox.Text = count == 0 ? $"Результат" : $"Результат [{count}]";
         };
-        this.urlForParsingTextBox.Click += (s, e) =>
-        {
-            if (this.urlForParsingTextBox.Text == _urlForParsingTextBoxDefault)
-            {
-                this.urlForParsingTextBox.Text = string.Empty;
-                this.urlForParsingTextBox.ForeColor = Color.Black;
-            }
-        };
-        this.urlForParsingTextBox.LostFocus += (s, e) =>
-        {
-            if (string.IsNullOrWhiteSpace(this.urlForParsingTextBox.Text) || this.urlForParsingTextBox.Text == _urlForParsingTextBoxDefault)
-            {
-                this.urlForParsingTextBox.Text = _urlForParsingTextBoxDefault;
-                this.urlForParsingTextBox.ForeColor = Color.DarkGray;
-            }
-        };
     }
 
     private void ActionOnEventsToSave()
@@ -108,7 +84,7 @@ internal partial class WordParserMainForm : Form
         };
     }
 
-    private void OnSettingsChanged(object source, WordParseSettingsChangesEventArgs args)
+    private void OnSettingsChanged(object? source, WordParseSettingsChangesEventArgs args)
     {
         Run(args.ParserMode);
     }
@@ -133,7 +109,7 @@ internal partial class WordParserMainForm : Form
         {
             var task = mode switch
             {
-                ParserMode.Parse => _parser.Parse(this.urlForParsingTextBox.Text != _urlForParsingTextBoxDefault ? this.urlForParsingTextBox.Text : string.Empty),
+                ParserMode.Parse => _parser.Parse(this.urlForParsingTextBox.Text),
                 ParserMode.ReApplyFilter => _parser.ReApplyFilterAsync(),
                 _ => throw new NotImplementedException($"'{mode}' - there is no implementation for this mode.")
             };

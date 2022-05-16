@@ -37,14 +37,15 @@ internal partial class WordParserMainForm
             this.saveBox.SuspendLayout();
             this.SuspendLayout();
             // 
-            // inputParsingUrlTextBox
+            // urlForParsingTextBox
             // 
             this.urlForParsingTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.urlForParsingTextBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.urlForParsingTextBox.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.urlForParsingTextBox.ForeColor = System.Drawing.Color.DarkGray;
+            this.urlForParsingTextBox.ForeColor = System.Drawing.Color.Black;
             this.urlForParsingTextBox.Location = new System.Drawing.Point(3, 19);
-            this.urlForParsingTextBox.Name = "inputParsingUrlTextBox";
+            this.urlForParsingTextBox.Name = "urlForParsingTextBox";
+            this.urlForParsingTextBox.PlaceholderText = "Enter the URL for parsing...";
             this.urlForParsingTextBox.Size = new System.Drawing.Size(530, 31);
             this.urlForParsingTextBox.TabIndex = 0;
             this.urlForParsingTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
